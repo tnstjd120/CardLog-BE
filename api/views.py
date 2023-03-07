@@ -8,7 +8,7 @@ from .models import Post
 
 class PostList(APIView): # 게시물 리스트 불러오기
     def get(self, request):
-        posts = Post.objects.all().order_by('-create_dttm')[:20] # 게시물 전체를 불러온 후 생성된 날짜의 역순으로 최대 20개 까지만 불러온다.
+        posts = Post.objects.all().order_by('-create_at')[:20] # 게시물 전체를 불러온 후 생성된 날짜의 역순으로 최대 20개 까지만 불러온다.
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
