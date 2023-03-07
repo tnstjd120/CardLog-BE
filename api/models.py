@@ -35,9 +35,9 @@ class Post(models.Model):
     post_type = models.IntegerField(default=0, help_text="0: 일반 게시물, 100: 카드 게시물")
     title = models.CharField(max_length=50, help_text="게시물 제목")
     content = models.TextField(help_text="게시물 내용")
-    bg_color = models.CharField(max_length=10, help_text="카드 배경색 (HEX)")
-    text_color = models.CharField(max_length=10, help_text="카드 글자색 (HEX)")
-    thumbnail = models.CharField(max_length=255, help_text="게시글 썸네일")
+    bg_color = models.CharField(max_length=10, default='#FFFFFF', help_text="카드 배경색 (HEX)")
+    text_color = models.CharField(max_length=10, default='#333333', help_text="카드 글자색 (HEX)")
+    thumbnail = models.CharField(max_length=255, default='', help_text="게시글 썸네일")
     create_at = models.DateTimeField(auto_now_add=True, help_text="생성 일자")
     update_at = models.DateTimeField(auto_now=True, help_text="수정 일자")
 
