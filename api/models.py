@@ -32,7 +32,7 @@ class Category(models.Model):
 
 class Post(models.Model):
     category = models.ForeignKey(Category, default=1, blank=True, null=True, on_delete=models.CASCADE)
-    post_type = models.IntegerField(default=0, help_text="0: 일반 게시물, 100: 카드 게시물")
+    post_type = models.IntegerField(default=0, help_text="0: 일반 게시물, 1: 카드 게시물")
     title = models.CharField(max_length=50, help_text="게시물 제목")
     content = models.TextField(help_text="게시물 내용")
     bg_color = models.CharField(max_length=10, default='#FFFFFF', help_text="카드 배경색 (HEX)")
