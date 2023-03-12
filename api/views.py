@@ -6,9 +6,16 @@ from django.http import Http404
 from .serializer import PostSerializer
 from .models import Post
 
+# ============= HOME =============
+class PostCardList(APIView): # 카드 리스트 불러오기
+    def get(self, request):
+        cards = Post.objects.filter(post_type=1).order_by('-create_at')[:10]
+        serializer = PostSerializer(cards, many=True)
+        return Response(serializer.data)
+
 class PostList(APIView): # 게시물 리스트 불러오기
     def get(self, request):
-        posts = Post.objects.all().order_by('-create_at')[:20] # 게시물 전체를 불러온 후 생성된 날짜의 역순으로 최대 20개 까지만 불러온다.
+        posts = Post.objects.all().order_by('-create_at')[:10]
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
