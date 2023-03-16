@@ -2,10 +2,10 @@ from rest_framework import serializers
 from .models import Post, User, LinkList, Category
 
 # ========== User Serializers ==========
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'name', 'email', 'profile_img', 'about', 'blog_name')
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('id', 'name', 'email', 'profile_img', 'about', 'blog_name')
 
 class LinkListSerializer(serializers.ModelSerializer):
     class Meta:
