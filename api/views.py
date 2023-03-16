@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.http import Http404
 
 from .serializer import PostSerializer
-from .models import Post
+from .models import Post, User
 
 # ============= HOME =============
 class PostCardList(APIView): # 카드 리스트 불러오기
