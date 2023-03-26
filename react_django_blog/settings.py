@@ -43,8 +43,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
-
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -53,6 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+
+    'accounts',
     'api',
     'corsheaders',
 
@@ -66,8 +66,6 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 ]
 
-AUTH_USER_MODEL = 'api.User'
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
@@ -76,17 +74,55 @@ REST_FRAMEWORK = {
 
 SITE_ID = 1
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 REST_AUTH = {
     'USE_JWT': True,
+    'JWT_AUTH_HTTPONLY': False,
     'JWT_AUTH_COOKIE': 'access',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
 }
+
+# Email Setting
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com' # 메일 호스트 서버
+EMAIL_PORT = '587' # gmail과 통신하는 포트
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER") # 발신할 이메일
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") # 발신할 메일의 비밀번호
+EMAIL_USE_TLS = True # TLS 보안 방법
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # 사이트와 관련한 자동응답을 받을 이메일 주소
+
+# URL_FRONT = 'http://localhost:8000' # 공개적인 웹페이지가 있다면 등록
+
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료되게끔
+ACCOUNT_EMAIL_REQUIRED = True
+
+ACCOUNT_EMAIL_VERIFICATION = "mandatory" # 인증 필요
+# ACCOUNT_EMAIL_VERIFICATION = "none" # 인증 없이 로그인 가능
+
+EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/' # 사이트와 관련한 자동응답을 받을 이메일 주소
+
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[CardLog]" # 보내지는 이메일 맨 앞에 붙여지는 이름
+
+
+REST_USE_JWT = True
+
+AUTH_USER_MODEL = 'accounts.User'
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
+}
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserDetailSerializer'
+}
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -105,7 +141,9 @@ ROOT_URLCONF = 'react_django_blog.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

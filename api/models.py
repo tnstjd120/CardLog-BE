@@ -1,50 +1,8 @@
 from django.db import models
+from imagekit.models import ProcessedImageField
+from imagekit.processors import ResizeToFill
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-
-## ==================== User Start ==================== ##
-class UserManager(BaseUserManager):
-
-    def create_user(self, email, password, **kwargs):
-        if not email:
-            raise ValueError('Users must have an email address')
-
-        user = self.model(
-            email=email,
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email=None, password=None, **extra_fields):
-        superuser = self.create_user(
-            email=email,
-            password=password,
-        )
-        superuser.is_staff = True
-        superuser.is_superuser = True
-        superuser.is_active = True
-        superuser.save(using=self._db)
-        return superuser
-
-class User(AbstractBaseUser, PermissionsMixin):
-    name = models.CharField(max_length=10, null=True, blank=True, help_text="이름")
-    email = models.EmailField(max_length=30, unique=True, null=False, blank=False, help_text="이메일")
-    password = models.CharField(max_length=255, help_text="비밀번호")
-    profile_img = models.CharField(max_length=255, null=True, blank=True, help_text="프로필 이미지")
-    about = models.CharField(max_length=50, null=True, blank=True, help_text="내 소개")
-    phone = models.CharField(max_length=13, null=True, blank=True, help_text="핸드폰 번호")
-    blog_name = models.CharField(max_length=20, null=True, blank=True, help_text="블로그 이름")
-    is_active = models.BooleanField(default=True, help_text="접근 권한 - True: 접속 가능 / False: 접속 불가")
-    is_superuser = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
-    create_at = models.DateTimeField(auto_now_add=True, help_text="생성 일자")
-    update_at = models.DateTimeField(auto_now=True, help_text="수정 일자")
-
-    objects = UserManager()
-
-    USERNAME_FIELD = 'email'
-
-## ==================== User End ==================== ##
+from accounts.models import User
 
 class LinkList(models.Model):
     user = models.ForeignKey(User, default=1, blank=True, null=True, on_delete=models.CASCADE)
