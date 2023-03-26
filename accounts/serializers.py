@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 from .models import User
+from api.models import Category, LinkList, Post
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from allauth.account.adapter import get_adapter
 from dj_rest_auth.serializers import UserDetailsSerializer, LoginSerializer
@@ -41,7 +42,7 @@ class CustomRegisterSerializer(RegisterSerializer):
 class CustomUserDetailSerializer(UserDetailsSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'phone', 'profile_img', 'about', 'blog_name']
+        fields = ['id', 'email', 'username', 'phone', 'profile_img', 'about', 'blog_name', 'blog_id']
 
 # 로그인 custom serializers
 # class CustomLoginSerializer(LoginSerializer):
@@ -49,8 +50,26 @@ class CustomUserDetailSerializer(UserDetailsSerializer):
 #         model = User
 #         fields = ['id', 'email', 'password', 'username', 'phone']
 
-# 이메일로 유저 정보 불러오기
-class UserInfoEmailSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+class LinkListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LinkList
+        fields = "__all__"
+
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = "__all__"
+
+# Blog_id로 유저 정보 불러오기
+class UserInfoBlogSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(many=True)
+    link_list = LinkListSerializer(many=True)
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'profile_img', 'about', 'phone', 'blog_name', 'update_at', 'create_at')
+        fields = ('id', 'username', 'email', 'profile_img', 'about', 'phone', 'blog_id', 'blog_name', 'update_at', 'create_at', 'category', 'link_list')

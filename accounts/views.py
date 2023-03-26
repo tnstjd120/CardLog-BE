@@ -7,8 +7,9 @@ from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from dj_rest_auth.registration.views import RegisterView
 from dj_rest_auth.views import UserDetailsView
 
-from .serializers import CustomRegisterSerializer, CustomUserDetailSerializer, UserInfoEmailSerializer
+from .serializers import CustomRegisterSerializer, CustomUserDetailSerializer, UserInfoBlogSerializer, PostSerializer
 from .models import User
+from api.models import Post
 
 # ============= EMAIL =============
 class ConfirmEmailView(APIView):
@@ -46,16 +47,18 @@ class CustomRegisterView(RegisterView):
 class CustomUserDetailsView(UserDetailsView):
     serializer_class = CustomUserDetailSerializer
 
-class UserInfoEmailView(APIView): # 이메일로 유저 정보 불러오기
-    def get_object(self, email):
-        print(email)
+class UserInfoBlogView(APIView): # 블로그 아이디로 유저 정보 불러오기
+    def get_object(self, blog_id):
         try:
-            return User.objects.filter(email__icontains=email)[0]
+            return User.objects.prefetch_related('category', 'link_list').get(blog_id=blog_id)
         except User.DoesNotExist:
             raise Http404
 
-    def get(self, request, email, format=None):
-        print(request)
-        user = self.get_object(email)
-        serializer = UserInfoEmailSerializer(user)
-        return Response(serializer.data)
+    def get(self, request, blog_id, format=None):
+        user = self.get_object(blog_id)
+        post = Post.objects.filter(category__user=user, post_type=1)
+
+        serializer = UserInfoBlogSerializer(user, context={'request': request})
+        data = serializer.data
+        data['post'] = PostSerializer(post, many=True).data
+        return Response(data)
