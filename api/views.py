@@ -1,10 +1,11 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import Http404
+from rest_framework.permissions import AllowAny
+from django.http import Http404, HttpResponseRedirect
 
-from .serializer import PostSerializer
-from .models import Post, User
+from .serializers import PostSerializer
+from .models import Post
 
 # ============= HOME =============
 class PostCardList(APIView): # 카드 리스트 불러오기

@@ -1,11 +1,9 @@
 from rest_framework import serializers
+from django.db import transaction
 from .models import Post, User, LinkList, Category
-
-# ========== User Serializers ==========
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('id', 'name', 'email', 'profile_img', 'about', 'blog_name')
+from dj_rest_auth.registration.serializers import RegisterSerializer
+from allauth.account.adapter import get_adapter
+from dj_rest_auth.serializers import UserDetailsSerializer
 
 class LinkListSerializer(serializers.ModelSerializer):
     class Meta:
