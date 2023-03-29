@@ -38,12 +38,6 @@ class CustomRegisterSerializer(RegisterSerializer):
         adapter.save_user(request, user, self)
         return user
 
-# 유저정보 custom serializers
-class CustomUserDetailSerializer(UserDetailsSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'email', 'username', 'phone', 'profile_img', 'about', 'blog_name', 'blog_id']
-
 # 로그인 custom serializers
 # class CustomLoginSerializer(LoginSerializer):
 #     class Meta:
@@ -65,11 +59,37 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = "__all__"
 
-# Blog_id로 유저 정보 불러오기
-class UserInfoBlogSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(many=True)
-    link_list = LinkListSerializer(many=True)
+# 유저정보 custom serializers
+class CustomUserDetailSerializer(UserDetailsSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'profile_img', 'about', 'phone', 'blog_id', 'blog_name', 'update_at', 'create_at', 'category', 'link_list')
+        fields = ['id', 'email', 'username', 'phone', 'profile_img', 'about', 'blog_name', 'blog_id', 'github_url', 'blog_url']
+
+    def validate_username(self, value):
+        user = self.context['request'].user
+        if user.username == value:
+            return value
+
+        if User.objects.filter(username=value).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError("User with this username already exists.")
+
+        return value
+    
+    def update(self, instance, validated_data):
+        instance.about = validated_data.get('about', instance.about)
+        instance.username = validated_data.get('username', instance.username)
+        instance.blog_name = validated_data.get('blog_name', instance.blog_name)
+        instance.github_url = validated_data.get('github_url', instance.github_url)
+        instance.blog_url = validated_data.get('blog_url', instance.blog_url)
+        
+        instance.save()
+        return instance
+
+# Blog_id로 유저 정보 불러오기
+class UserInfoBlogSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'profile_img', 'about', 'phone', 'blog_id', 'blog_name', 'github_url', 'blog_url', 'update_at', 'create_at', 'category')

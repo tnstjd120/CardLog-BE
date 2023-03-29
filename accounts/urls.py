@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import ConfirmEmailView, CustomUserDetailsView, CustomRegisterView , UserInfoBlogView
+from .views import ConfirmEmailView, CustomUserDetailsView, CustomRegisterView, UserInfoBlogView, ProfileImageUpload
 
 from dj_rest_auth.views import LoginView, LogoutView
 from dj_rest_auth.registration.views import RegisterView, VerifyEmailView
@@ -20,6 +20,7 @@ urlpatterns = [
     # path('token/refresh/', TokenRefreshView().as_view(), name='token_refresh'),
 
     path('user/<slug:blog_id>/', UserInfoBlogView.as_view(), name="user_info_email"),
+    path('image/', ProfileImageUpload.as_view(), name="user_upload_image"),
 
     # Email
     # 이메일 관련 필요

@@ -15,11 +15,11 @@ class LinkListSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'create_at')
+        fields = "__all__"
 
 
 # ========== Post Serializers ==========
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ('id', 'post_type', 'title', 'content', 'bg_color', 'text_color', 'thumbnail', 'update_at', 'create_at')
+        fields = fields = "__all__"
