@@ -16,7 +16,8 @@ class PostCardList(APIView): # 카드 리스트 불러오기
 
 class PostList(APIView): # 게시물 리스트 불러오기
     def get(self, request):
-        posts = Post.objects.all().order_by('-create_at')[:10]
+        print(request.GET.get('category'))
+        posts = Post.objects.filter(category_id=request.GET.get('category')).order_by('-create_at')
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 

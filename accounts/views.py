@@ -1,3 +1,6 @@
+from django.http import JsonResponse
+from django.views import View
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,6 +13,10 @@ from dj_rest_auth.views import UserDetailsView
 from .serializers import CustomRegisterSerializer, CustomUserDetailSerializer, UserInfoBlogSerializer, PostSerializer
 from .models import User
 from api.models import Post
+
+from react_django_blog.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_STORAGE_BUCKET_NAME, IMAGE_URL
+
+import boto3, uuid
 
 # ============= EMAIL =============
 class ConfirmEmailView(APIView):
@@ -47,6 +54,13 @@ class CustomRegisterView(RegisterView):
 class CustomUserDetailsView(UserDetailsView):
     serializer_class = CustomUserDetailSerializer
 
+    def patch(self, request, *args, **kwargs):
+        serializer = self.get_serializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class UserInfoBlogView(APIView): # 블로그 아이디로 유저 정보 불러오기
     def get_object(self, blog_id):
         try:
@@ -62,3 +76,49 @@ class UserInfoBlogView(APIView): # 블로그 아이디로 유저 정보 불러�
         data = serializer.data
         data['post'] = PostSerializer(post, many=True).data
         return Response(data)
+
+class ProfileImageUpload(View):
+    def get(self, request):
+        print('image upload get')
+        try:
+            files = request.FILES.getlist('files')
+            host_id = request.GET.get('host_id')
+            s3r = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+            key = "%s"%(host_id)
+
+            for file in files:
+                file._set_name(str(uuid.uuid4()))
+                s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='jpg')
+                Image.objects.create(
+                    image_url= IMAGE_URL+"%s/%s"%(host_id, file),
+                    host_id= host_id
+                )
+            return JsonResponse({"MESSGE": "SUCCESS"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"ERROR": e})
+
+    def post(self, request):
+        print('image upload')
+        try:
+            files = request.FILES.getlist('files')
+            host_id = request.GET.get('host_id')
+            s3r = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+            key = "%s"%(host_id)
+
+            for file in files:
+                file._set_name(str(uuid.uuid4()))
+                s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='jpg')
+
+                user = User.objects.get(pk=request.POST['id'])
+
+                user.profile_img = ("%s/%s"%(host_id, file))
+                user.save()
+                # Image.objects.create(
+                #     image_url= IMAGE_URL+"%s/%s"%(host_id, file),
+                #     host_id= host_id
+                # )
+            return JsonResponse({"message": "success", "profile_img": str(user.profile_img)}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
