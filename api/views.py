@@ -83,3 +83,43 @@ class PostCreateView(APIView): # 게시물 생성
 
         except Exception as e:
             return JsonResponse({"error": e})
+
+class PostUpdateView(APIView): # 게시물 수정
+    def post(self, request):
+        try:
+            post = Post.objects.get(pk=request.POST['post_id'])
+
+            file = request.FILES.get('thumbnail')
+            if file:
+                host_id = request.GET.get('host_id')
+                s3r = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+                key = "%s"%(host_id)
+
+                file._set_name(str(uuid.uuid4()))
+                s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='image/jpeg')
+
+                post.thumbnail = ("%s/%s"%(host_id, file))
+                
+            post.category_id = request.data['category_id']
+            post.title = request.data['title']
+            post.content = request.data['content']
+            post.post_type = request.data.get('post_type', 0)
+            post.bg_color = request.data.get('bg_color', '')
+            post.text_color = request.data.get('text_color', '')
+            post.save()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class PostDeleteView(APIView): # 게시물 수정
+    def post(self, request):
+        try:
+            post = Post.objects.get(pk=request.data['post_id'])
+            post.delete()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
