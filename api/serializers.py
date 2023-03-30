@@ -38,6 +38,6 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "id": user.id,
             "username": user.username,
             "email": user.email,
+            "blog_id": user.blog_id,
             "profile_img": user.profile_img
-            # Add any other fields from User model that you want to include
         }
