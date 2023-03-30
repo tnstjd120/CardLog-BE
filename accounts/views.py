@@ -15,7 +15,6 @@ from .models import User
 from api.models import Post
 
 from react_django_blog.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_STORAGE_BUCKET_NAME, IMAGE_URL
-
 import boto3, uuid
 
 # ============= EMAIL =============
@@ -78,25 +77,25 @@ class UserInfoBlogView(APIView): # 블로그 아이디로 유저 정보 불러�
         return Response(data)
 
 class ProfileImageUpload(View):
-    def get(self, request):
-        print('image upload get')
-        try:
-            files = request.FILES.getlist('files')
-            host_id = request.GET.get('host_id')
-            s3r = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-            key = "%s"%(host_id)
+    # def get(self, request):
+    #     print('image upload get')
+    #     try:
+    #         files = request.FILES.getlist('files')
+    #         host_id = request.GET.get('host_id')
+    #         s3r = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+    #         key = "%s"%(host_id)
 
-            for file in files:
-                file._set_name(str(uuid.uuid4()))
-                s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='jpg')
-                Image.objects.create(
-                    image_url= IMAGE_URL+"%s/%s"%(host_id, file),
-                    host_id= host_id
-                )
-            return JsonResponse({"MESSGE": "SUCCESS"}, status=200)
+    #         for file in files:
+    #             file._set_name(str(uuid.uuid4()))
+    #             s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='jpg')
+    #             Image.objects.create(
+    #                 image_url= IMAGE_URL+"%s/%s"%(host_id, file),
+    #                 host_id= host_id
+    #             )
+    #         return JsonResponse({"MESSGE": "SUCCESS"}, status=200)
 
-        except Exception as e:
-            return JsonResponse({"ERROR": e})
+    #     except Exception as e:
+    #         return JsonResponse({"ERROR": e})
 
     def post(self, request):
         print('image upload')
@@ -108,7 +107,7 @@ class ProfileImageUpload(View):
 
             for file in files:
                 file._set_name(str(uuid.uuid4()))
-                s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='jpg')
+                s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='image/jpeg')
 
                 user = User.objects.get(pk=request.POST['id'])
 
