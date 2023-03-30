@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import PostCardList, PostList, PostDetail, CategoryView, CategorysView, PostCreateView
+from .views import PostCardList, PostList, PostDetail, CategoryView, CategorysView, PostCreateView, PostUpdateView, PostDeleteView
 
 urlpatterns = [
     path('category/<int:category_id>/', CategoryView.as_view()),
@@ -9,6 +9,8 @@ urlpatterns = [
     path('posts/', PostList.as_view()),
     path('posts/<int:pk>/', PostDetail.as_view()),
     path('post/create/', PostCreateView.as_view()),
+    path('post/update/', PostUpdateView.as_view()),
+    path('post/delete/', PostDeleteView.as_view()),
     
 ]
 
