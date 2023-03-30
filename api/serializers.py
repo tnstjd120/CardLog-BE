@@ -22,4 +22,22 @@ class CategorySerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = fields = "__all__"
+        fields =  "__all__"
+
+# ========== Post Serializers ==========
+class PostDetailSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields =  "__all__"
+
+    def get_user(self, post):
+        user = post.category.user
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "profile_img": user.profile_img
+            # Add any other fields from User model that you want to include
+        }
