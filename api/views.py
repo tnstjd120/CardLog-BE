@@ -38,8 +38,9 @@ class PostCardList(APIView): # 카드 리스트 불러오기
 
 class PostList(APIView): # 게시물 리스트 불러오기
     def get(self, request):
+        print(request.GET.get('blog_id'))
         print(request.GET.get('category'))
-        posts = Post.objects.filter(category_id=request.GET.get('category')).order_by('-create_at')
+        posts = Post.objects.filter(category_id=request.GET.get('category'), category__user__blog_id=request.GET.get('blog_id')).order_by('-create_at')
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
@@ -118,6 +119,51 @@ class PostDeleteView(APIView): # 게시물 수정
         try:
             post = Post.objects.get(pk=request.data['post_id'])
             post.delete()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class CategoryCreateView(APIView): # 카테고리 생성
+    def post(self, request):
+        try:
+            category = Category()
+                
+            category.user_id = request.data['user_id']
+            category.name = request.data['name']
+            category.save()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class CategoryUpdateView(APIView): # 카테고리 수정
+    def post(self, request):
+        try:
+            print(request.data)
+            category = Category.objects.get(pk=request.data['category_id'])
+
+            category.name = request.data['name']
+            category.save()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class CategoryDeleteView(APIView): # 카테고리 삭제
+    def post(self, request):
+        try:
+            category = Category.objects.get(pk=request.data['category_id'])
+
+            posts = Post.objects.filter(category_id=request.data['category_id'])
+            print(len(posts))
+            if len(posts) > 0:
+                return JsonResponse({"message": "카테고리 내에 게시물이 있으면 삭제할 수 없습니다."}, status=200)
+
+            category.delete()
             
             return JsonResponse({"message": "success"}, status=200)
 
