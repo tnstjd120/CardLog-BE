@@ -242,7 +242,7 @@ DEFAULT_CHARSET= 'utf-8'
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # AWS S3 Setting
 
