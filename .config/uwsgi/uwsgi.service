@@ -3,7 +3,7 @@ Description=uWSGI service
 After=syslog.target
 
 [Service]
-ExecStart=/home/ubuntu/CardLog-BE/venv/bin/uwsgi -i /home/ubuntu/CardLog-BE/.config/uwsgi/mysite.ini
+ExecStart=/home/ubuntu/CardLog-BE/venv/bin/uwsgi -i /srv/CardLog-BE/.config/uwsgi/mysite.ini
 
 Restart=always
 KillSignal=SIGQUIT
