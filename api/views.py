@@ -38,8 +38,9 @@ class PostCardList(APIView): # 카드 리스트 불러오기
 
 class PostList(APIView): # 게시물 리스트 불러오기
     def get(self, request):
+        print(request.GET.get('blog_id'))
         print(request.GET.get('category'))
-        posts = Post.objects.filter(category_id=request.GET.get('category')).order_by('-create_at')
+        posts = Post.objects.filter(category_id=request.GET.get('category'), category__user__blog_id=request.GET.get('blog_id')).order_by('-create_at')
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
@@ -78,6 +79,91 @@ class PostCreateView(APIView): # 게시물 생성
             post.bg_color = request.data.get('bg_color', '')
             post.text_color = request.data.get('text_color', '')
             post.save()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class PostUpdateView(APIView): # 게시물 수정
+    def post(self, request):
+        try:
+            post = Post.objects.get(pk=request.POST['post_id'])
+
+            file = request.FILES.get('thumbnail')
+            if file:
+                host_id = request.GET.get('host_id')
+                s3r = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+                key = "%s"%(host_id)
+
+                file._set_name(str(uuid.uuid4()))
+                s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='image/jpeg')
+
+                post.thumbnail = ("%s/%s"%(host_id, file))
+                
+            post.category_id = request.data['category_id']
+            post.title = request.data['title']
+            post.content = request.data['content']
+            post.post_type = request.data.get('post_type', 0)
+            post.bg_color = request.data.get('bg_color', '')
+            post.text_color = request.data.get('text_color', '')
+            post.save()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class PostDeleteView(APIView): # 게시물 수정
+    def post(self, request):
+        try:
+            post = Post.objects.get(pk=request.data['post_id'])
+            post.delete()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class CategoryCreateView(APIView): # 카테고리 생성
+    def post(self, request):
+        try:
+            category = Category()
+                
+            category.user_id = request.data['user_id']
+            category.name = request.data['name']
+            category.save()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class CategoryUpdateView(APIView): # 카테고리 수정
+    def post(self, request):
+        try:
+            print(request.data)
+            category = Category.objects.get(pk=request.data['category_id'])
+
+            category.name = request.data['name']
+            category.save()
+            
+            return JsonResponse({"message": "success"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
+
+class CategoryDeleteView(APIView): # 카테고리 삭제
+    def post(self, request):
+        try:
+            category = Category.objects.get(pk=request.data['category_id'])
+
+            posts = Post.objects.filter(category_id=request.data['category_id'])
+            print(len(posts))
+            if len(posts) > 0:
+                return JsonResponse({"message": "카테고리 내에 게시물이 있으면 삭제할 수 없습니다."}, status=200)
+
+            category.delete()
             
             return JsonResponse({"message": "success"}, status=200)
 
