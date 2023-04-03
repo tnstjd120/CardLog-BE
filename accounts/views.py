@@ -77,26 +77,6 @@ class UserInfoBlogView(APIView): # 블로그 아이디로 유저 정보 불러�
         return Response(data)
 
 class ProfileImageUpload(View):
-    # def get(self, request):
-    #     print('image upload get')
-    #     try:
-    #         files = request.FILES.getlist('files')
-    #         host_id = request.GET.get('host_id')
-    #         s3r = boto3.resource('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-    #         key = "%s"%(host_id)
-
-    #         for file in files:
-    #             file._set_name(str(uuid.uuid4()))
-    #             s3r.Bucket(AWS_STORAGE_BUCKET_NAME).put_object(Key=key+'/%s'%(file), Body=file, ContentType='jpg')
-    #             Image.objects.create(
-    #                 image_url= IMAGE_URL+"%s/%s"%(host_id, file),
-    #                 host_id= host_id
-    #             )
-    #         return JsonResponse({"MESSGE": "SUCCESS"}, status=200)
-
-    #     except Exception as e:
-    #         return JsonResponse({"ERROR": e})
-
     def post(self, request):
         print('image upload')
         try:
@@ -113,10 +93,7 @@ class ProfileImageUpload(View):
 
                 user.profile_img = ("%s/%s"%(host_id, file))
                 user.save()
-                # Image.objects.create(
-                #     image_url= IMAGE_URL+"%s/%s"%(host_id, file),
-                #     host_id= host_id
-                # )
+                
             return JsonResponse({"message": "success", "profile_img": str(user.profile_img)}, status=200)
 
         except Exception as e:
