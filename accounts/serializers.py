@@ -15,13 +15,14 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'password', 'username', 'phone', 'blog_id')
+        fields = ('email', 'password1', 'password2', 'username', 'phone', 'blog_id')
 
     def get_cleaned_data(self):
         super(CustomRegisterSerializer, self).get_cleaned_data()
         return {
             'email': self.validated_data.get('email', ''),
-            'password': self.validated_data.get('password', ''),
+            'password1': self.validated_data.get('password1', ''),
+            'password2': self.validated_data.get('password2', ''),
             'username': self.validated_data.get('username', ''),
             'phone': self.validated_data.get('phone', ''),
             'blog_id': self.validated_data.get('blog_id', ''),
