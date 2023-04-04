@@ -49,11 +49,13 @@ ALLOWED_HOSTS = [
 # CORS 허용
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
+    'http://localhost:8080',
     'http://127.0.0.1:3000',
     'http://cardlog.life',
 ]
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
+    'http://localhost:8080',
     'http://127.0.0.1:3000',
     'http://cardlog.life',
 ]
