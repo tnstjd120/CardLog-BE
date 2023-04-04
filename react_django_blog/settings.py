@@ -44,6 +44,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '.ap-northeast-2.compute.amazonaws.com',
     'api.cardlog.life'
+    'cardlog.life'
 ]
 
 # CORS 허용
@@ -81,7 +82,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    # 'rest_framework_simplejwt',
+    'rest_framework_simplejwt',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -89,9 +90,16 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 ]
 
+# REST_AUTH_TEMPLATE_PACK = 'account'
+# REST_AUTH_PASSWORD_RESET_CONFIRM_URL = 'password-reset-confirm'
+# REST_AUTH_SERIALIZERS = {
+#     'PASSWORD_RESET_SERIALIZER': 'accounts.serializers.CustomPasswordResetSerializer',
+# }
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+        # 'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
 
@@ -101,12 +109,23 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=3),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'TOKEN_USER_CLASS': 'accounts.User',
+}
+
 REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_HTTPONLY': False,
     'JWT_AUTH_COOKIE': 'access',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
+    'JWT_AUTH_SAMESITE': 'Lax',
 }
+
+ACCESS_TOKEN_LIFETIME = timedelta(minutes=30)
 
 # Email Setting
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -117,7 +136,7 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") # 발신할 메일�
 EMAIL_USE_TLS = True # TLS 보안 방법
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # 사이트와 관련한 자동응답을 받을 이메일 주소
 
-# URL_FRONT = 'http://localhost:8000' # 공개적인 웹페이지가 있다면 등록
+URL_FRONT = 'http://cardlog.life' # 공개적인 웹페이지가 있다면 등록
 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료되게끔
 ACCOUNT_EMAIL_REQUIRED = True

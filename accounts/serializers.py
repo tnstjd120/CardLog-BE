@@ -4,7 +4,7 @@ from .models import User
 from api.models import Category, LinkList, Post
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from allauth.account.adapter import get_adapter
-from dj_rest_auth.serializers import UserDetailsSerializer, LoginSerializer
+from dj_rest_auth.serializers import UserDetailsSerializer, LoginSerializer, PasswordResetSerializer
 
 
 # 회원가입 custom serializers
@@ -87,6 +87,29 @@ class CustomUserDetailSerializer(UserDetailsSerializer):
         instance.save()
         return instance
 
+# 유저 비밀번호 리셋
+class CustomPasswordResetSerializer(PasswordResetSerializer):
+    def get_email_options(self):
+        print('custom serializer get_email_options() called')
+        options = super().get_email_options()
+        print('super() get_email_options() returned:', options)
+        options.update({
+            'subject_template_name': 'account/email/password_reset_subject.txt',
+            'email_template_name': 'account/email/password_reset_email.html',
+            'html_email_template_name': 'account/email/password_reset_email.html',
+            'extra_email_context': {
+                'domain': self.context['request'].get_host(),
+                'protocol': 'https' if self.context['request'].is_secure() else 'http',
+            },
+        })
+        print('updated options:', options)
+        return options
+
+    def send_mail(self, subject_template_name, email_template_name, context, from_email, to_email, html_email_template_name=None):
+        print("Subject template path:", subject_template_name)
+        print("Email template path:", email_template_name)
+        super().send_mail(subject_template_name, email_template_name, context, from_email, to_email, html_email_template_name)
+
 # Blog_id로 유저 정보 불러오기
 class UserInfoBlogSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=True)
@@ -94,3 +117,28 @@ class UserInfoBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'profile_img', 'about', 'phone', 'blog_id', 'blog_name', 'github_url', 'blog_url', 'update_at', 'create_at', 'category')
+
+# 유저 랭킹 top5
+class RankingUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'blog_id', 'profile_img')
+
+class RankingPostSerializer(serializers.ModelSerializer):
+    user = RankingUserSerializer()
+
+    class Meta:
+        model = Post
+        fields = ('id', 'title', 'content', 'user')
+
+class RankingUserPostSerializer(serializers.ModelSerializer):
+    post_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'blog_id', 'profile_img', 'post_count')
+
+    def get_post_count(self, obj):
+        print('obj ==> ', obj)
+        print('obj.pk ==> ', obj['id'])
+        return Post.objects.filter(category__user_id=obj['id']).count()

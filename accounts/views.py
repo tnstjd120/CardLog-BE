@@ -1,16 +1,17 @@
 from django.http import JsonResponse
 from django.views import View
+from django.db.models import Count
 
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.http import Http404, HttpResponseRedirect
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from dj_rest_auth.registration.views import RegisterView
-from dj_rest_auth.views import UserDetailsView
+from dj_rest_auth.views import UserDetailsView, PasswordResetView
 
-from .serializers import CustomRegisterSerializer, CustomUserDetailSerializer, UserInfoBlogSerializer, PostSerializer
+from .serializers import CustomRegisterSerializer, CustomUserDetailSerializer, UserInfoBlogSerializer, PostSerializer, CustomPasswordResetSerializer, RankingUserPostSerializer
 from .models import User
 from api.models import Post
 
@@ -25,7 +26,7 @@ class ConfirmEmailView(APIView):
         self.object = confirmation = self.get_object()
         confirmation.confirm(self.request)
         # A React Router Route will handle the failure scenario
-        return HttpResponseRedirect('http://localhost:3000/signup/success') # 인증성공
+        return HttpResponseRedirect('http://cardlog.life/signup/success') # 인증성공
 
     def get_object(self, queryset=None):
         key = self.kwargs['key']
@@ -49,6 +50,11 @@ class ConfirmEmailView(APIView):
 class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
 
+# ============= 비밀번호 리셋 =============
+class CustomPasswordResetView(PasswordResetView):
+    print("Custom password reset serializer used")
+    serializer_class = CustomPasswordResetSerializer
+
 # ============= User Detail =============
 class CustomUserDetailsView(UserDetailsView):
     serializer_class = CustomUserDetailSerializer
@@ -59,6 +65,18 @@ class CustomUserDetailsView(UserDetailsView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class SearchEmail(APIView): # 유저 이메일 찾기
+    def post(self, request):
+
+        try:
+            user = User.objects.get(username=request.data['username'], phone=request.data['phone'])
+            email = user.email
+
+            return JsonResponse({"message": "success", "email": email}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": e})
 
 class UserInfoBlogView(APIView): # 블로그 아이디로 유저 정보 불러오기
     def get_object(self, blog_id):
@@ -98,3 +116,10 @@ class ProfileImageUpload(View):
 
         except Exception as e:
             return JsonResponse({"error": e})
+
+class RankingUserPostView(generics.ListAPIView):
+    serializer_class = RankingUserPostSerializer
+
+    def get_queryset(self):
+        users = User.objects.annotate(post_count=Count('category__post')).order_by('-post_count')[:5]
+        return users.values('id', 'username', 'blog_id', 'profile_img', 'post_count')

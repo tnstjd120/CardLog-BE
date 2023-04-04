@@ -1,8 +1,8 @@
 from django.urls import path, include, re_path
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import ConfirmEmailView, CustomUserDetailsView, CustomRegisterView, UserInfoBlogView, ProfileImageUpload
+from .views import ConfirmEmailView, CustomUserDetailsView, CustomRegisterView, UserInfoBlogView, ProfileImageUpload, SearchEmail, CustomPasswordResetView, RankingUserPostView
 
-from dj_rest_auth.views import LoginView, LogoutView
+from dj_rest_auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetConfirmView
 from dj_rest_auth.registration.views import RegisterView, VerifyEmailView
 
 # JWT CONF
@@ -16,11 +16,17 @@ urlpatterns = [
     path('register/', CustomRegisterView.as_view(), name="signup"),
     path('login/', LoginView.as_view(), name="login"),
     path('logout/', LogoutView.as_view(), name="logout"),
+    path('search/email/', SearchEmail.as_view(), name="search_email"),
+
+    # Password reset
+    path('password/reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password/reset/confirm/<slug:uidb64>/<slug:token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     # path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     # path('token/refresh/', TokenRefreshView().as_view(), name='token_refresh'),
 
-    path('user/<slug:blog_id>/', UserInfoBlogView.as_view(), name="user_info_email"),
+    path('user/<slug:blog_id>/', UserInfoBlogView.as_view(), name="user_blog_info"),
     path('image/', ProfileImageUpload.as_view(), name="user_upload_image"),
+    path('ranking/', RankingUserPostView.as_view(), name="user_ranking"),
 
     # Email
     # 이메일 관련 필요
