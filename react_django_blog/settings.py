@@ -38,14 +38,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = [
-    '0.0.0.0',
-    'localhost',
-    '127.0.0.1',
-    '.ap-northeast-2.compute.amazonaws.com',
-    'api.cardlog.life'
-    'cardlog.life'
-]
+ALLOWED_HOSTS = [*]
 
 # CORS 허용
 CSRF_TRUSTED_ORIGINS = [
