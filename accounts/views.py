@@ -121,5 +121,5 @@ class RankingUserPostView(generics.ListAPIView):
     serializer_class = RankingUserPostSerializer
 
     def get_queryset(self):
-        users = User.objects.annotate(post_count=Count('category__post')).order_by('-post_count')[:5]
+        users = User.objects.annotate(post_count=Count('category__post')).order_by('-post_count')[:10]
         return users.values('id', 'username', 'blog_id', 'profile_img', 'post_count')
